@@ -1,9 +1,12 @@
-<app-header [title]="title"></app-header>
+<app-splash [isActiveSplash]="isShowSplash"></app-splash>
 
-<main class="content">
-  <app-loader *ngIf="isLoading"></app-loader>
-  <app-main-form *ngIf="!isLoading"
-                 (isLoading)="onLoading($event)"></app-main-form>
-</main>
+<ng-template [ngIf]="!isShowSplash">
+  <app-header [title]="title"></app-header>
 
-<app-footer></app-footer>
+  <main class="content">
+    <app-main-form></app-main-form>
+  </main>
+
+  <app-footer></app-footer>
+
+</ng-template>

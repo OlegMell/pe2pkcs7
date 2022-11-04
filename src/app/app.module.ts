@@ -16,6 +16,8 @@ import { DndDirective } from './directives/dnd.directive';
 import { ErrorAlertComponent } from './components/error-alert/error-alert.component';
 import { ButtonComponent } from './components/button/button.component';
 import { SuccessMessageComponent } from './components/success-message/success-message.component';
+import { SplashComponent } from './components/splash/splash.component';
+import { mockBackendProvider } from './mock/mock-backend.service';
 
 @NgModule({
   declarations: [
@@ -29,7 +31,8 @@ import { SuccessMessageComponent } from './components/success-message/success-me
     DndDirective,
     ErrorAlertComponent,
     ButtonComponent,
-    SuccessMessageComponent
+    SuccessMessageComponent,
+    SplashComponent
   ],
   imports: [
     CommonModule,
@@ -38,7 +41,9 @@ import { SuccessMessageComponent } from './components/success-message/success-me
     ReactiveFormsModule,
     HttpClientModule
   ],
-  providers: [],
+  providers: [
+    mockBackendProvider
+  ],
   bootstrap: [ AppComponent ]
 })
 export class AppModule {

@@ -13,7 +13,7 @@ export class BackendService {
 
   // TODO set method url
   convertFile(req: ConvertFile): Observable<any> {
-    return this.http.post<any>(`path?ext=${req.exportFileType}`, req.file);
+    return this.http.post<any>(`api/upload?ext=${req.exportFileType}`, req.file);
   }
 
 }

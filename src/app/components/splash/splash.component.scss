@@ -1,0 +1,31 @@
+.splash {
+  width: 80vw;
+  margin: 0 auto;
+  height: 100vh;
+  z-index: 99999;
+  display: flex;
+  background-color: white;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top:0;
+  bottom: 0;
+
+  &__content {
+    margin: auto;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    font-size: 3rem;
+    font-weight: 700;
+
+    &__app-title {
+      margin-left: 10px;
+    }
+  }
+}
+
+.close {
+  transition: all .3s ease-in-out;
+  transform: translateY(-100%);
+}

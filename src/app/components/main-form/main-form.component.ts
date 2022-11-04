@@ -18,13 +18,14 @@ export class MainFormComponent implements OnInit, OnDestroy {
 
   private readonly uns$: Subject<void> = new Subject<void>();
 
-  @Output() isLoading: EventEmitter<boolean> = new EventEmitter<boolean>();
+  // @Output() isLoading: EventEmitter<boolean> = new EventEmitter<boolean>();
 
   form!: FormGroup;
   validFile: boolean = true;
   tempFile!: File | null;
   exportFileTypes: typeof ConvertFileType = ConvertFileType;
   isSuccessConverted: boolean = false;
+  isFetching: boolean = false;
 
   get file(): File {
     return this.form.get('file')?.value;
@@ -68,7 +69,9 @@ export class MainFormComponent implements OnInit, OnDestroy {
   }
 
   convertFile(): void {
-    this.isLoading.emit(true);
+    // this.isLoading.emit(true);
+
+    this.isFetching = true;
 
     const req: ConvertFile = {} as ConvertFile;
 
@@ -123,9 +126,12 @@ export class MainFormComponent implements OnInit, OnDestroy {
       .subscribe((res) => {
 
         console.log('DATA: ', res);
-        this.downloadConvertedFile(res.data);
+        // this.downloadConvertedFile(res.data);
 
+        this.isFetching = false;
         this.isSuccessConverted = true;
+        this.tempFile = null;
+        this.fileControl.setValue(null);
       });
   }
 

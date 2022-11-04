@@ -15,10 +15,12 @@
     width: 200px;
     display: flex;
     text-align: center;
+    align-items: center;
     justify-content: center;
 
     &__logo-wrapper {
-
+      display: flex;
+      align-items: center;
     }
 
     &__title {

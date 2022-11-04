@@ -3,6 +3,8 @@
                  (onClose)="closeErrorHandler()">
 </app-error-alert>
 
+<app-loader *ngIf="isFetching"></app-loader>
+
 <app-success-message
   *ngIf="isSuccessConverted"
   [withButton]="true"
@@ -11,7 +13,7 @@
 </app-success-message>
 
 
-<div class="main-form" *ngIf="validFile && !isSuccessConverted">
+<div class="main-form" *ngIf="validFile && !isSuccessConverted && !isFetching">
 
   <app-form-top-text>
     <div class="main-form__text-box" *ngIf="!file">
