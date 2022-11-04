@@ -4,4 +4,8 @@
   align-items: center;
   height: 85vh;
   width: 100%;
+
+  @media (max-width: 600px) {
+    height: 100vh;
+  }
 }

@@ -15,6 +15,7 @@ import { RadioButtonComponent } from './components/main-form/radio-button/radio-
 import { DndDirective } from './directives/dnd.directive';
 import { ErrorAlertComponent } from './components/error-alert/error-alert.component';
 import { ButtonComponent } from './components/button/button.component';
+import { SuccessMessageComponent } from './components/success-message/success-message.component';
 
 @NgModule({
   declarations: [
@@ -27,7 +28,8 @@ import { ButtonComponent } from './components/button/button.component';
     RadioButtonComponent,
     DndDirective,
     ErrorAlertComponent,
-    ButtonComponent
+    ButtonComponent,
+    SuccessMessageComponent
   ],
   imports: [
     CommonModule,

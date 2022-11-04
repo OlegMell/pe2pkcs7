@@ -1,6 +1,28 @@
-<div class="main-form">
+<app-error-alert *ngIf="!validFile"
+                 [fileName]="tempFile!.name"
+                 (onClose)="closeErrorHandler()">
+</app-error-alert>
 
-  <app-form-top-text></app-form-top-text>
+<app-success-message
+  *ngIf="isSuccessConverted"
+  [withButton]="true"
+  (buttonClicked)="onSuccessMessageClose()"
+  buttonLabel="Convert a new file">
+</app-success-message>
+
+
+<div class="main-form" *ngIf="validFile && !isSuccessConverted">
+
+  <app-form-top-text>
+    <div class="main-form__text-box" *ngIf="!file">
+      <p class="main-form__text-box_part">Tool to pull <span class="main-form__text-box__color">pkcs7</span> from file.
+      </p>
+      <p class="main-form__text-box_part">Select a file to get started</p>
+    </div>
+    <div class="main-form__text-box" *ngIf="file">
+      <p class="main-form__text-box_part">Select file type and click "Convert"</p>
+    </div>
+  </app-form-top-text>
 
   <div class="main-form__form-box">
 
@@ -17,13 +39,13 @@
                  (change)="onFileSelected($event)"
                  [multiple]="false">
 
-          <ng-template [ngIf]="!validFile">
+          <ng-template [ngIf]="!file">
             <img src="assets/icons/State=Default.svg"
                  alt="input icon state default">
             <span class="main-form__form-box__form__input-box__custom-inp__placeholder-text">Choose a file</span>
           </ng-template>
 
-          <ng-template [ngIf]="validFile">
+          <ng-template [ngIf]="file">
             <img src="assets/icons/State=Downloaded.svg"
                  alt="input icon state default">
             <div class="placeholder-wrapper">
@@ -59,17 +81,11 @@
 
       <div class="main-form__form-box__form__button-box">
 
-<!--        <button class="main-form__form-box__form__button-box__btn"-->
-<!--                [disabled]="form.invalid"-->
-<!--                (click)="convertFile()">-->
-<!--          Convert-->
-<!--        </button>-->
-
         <app-button
           label="Convert"
           [disabled]="form.invalid"
-          (onClick)="convertFile()"
-        ></app-button>
+          (onClick)="convertFile()">
+        </app-button>
 
       </div>
 

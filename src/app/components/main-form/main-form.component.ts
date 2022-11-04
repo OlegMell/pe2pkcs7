@@ -1,9 +1,9 @@
-import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
+import { Subject, takeUntil } from 'rxjs';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
 
-import { BackendService } from '../../services/backend.service';
-import { retry, Subject, takeUntil } from 'rxjs';
 import { ConvertFile } from '../../models/backend.models';
+import { BackendService } from '../../services/backend.service';
 import { ConvertFileType } from '../../enums/convert-file-type.enum';
 
 const MB = 1000_000;
@@ -20,14 +20,18 @@ export class MainFormComponent implements OnInit, OnDestroy {
 
   @Output() isLoading: EventEmitter<boolean> = new EventEmitter<boolean>();
 
-  dragAreaClass!: string;
   form!: FormGroup;
-  validFile!: boolean;
-
+  validFile: boolean = true;
+  tempFile!: File | null;
   exportFileTypes: typeof ConvertFileType = ConvertFileType;
+  isSuccessConverted: boolean = false;
 
   get file(): File {
     return this.form.get('file')?.value;
+  }
+
+  get fileControl(): FormControl {
+    return this.form.get('file') as FormControl;
   }
 
   get exportFileType(): string {
@@ -53,9 +57,6 @@ export class MainFormComponent implements OnInit, OnDestroy {
     this.uns$.complete();
   }
 
-  /**
-   * on file drop handler
-   */
   onFileDropped(files: any) {
     this.prepareFile(files);
   }
@@ -83,13 +84,30 @@ export class MainFormComponent implements OnInit, OnDestroy {
   }
 
   prepareFile(fileList: FileList | null): void {
-    if (!this.isCorrectFileSize(fileList![0]) || this.isCorrectFileExt(fileList![0])) {
+
+    this.tempFile = fileList![0];
+
+    if (!this.isCorrectFileSize(this.tempFile) || !this.isCorrectFileExt(this.tempFile)) {
+      this.validFile = false;
       return;
     }
 
-    this.form.get('file')?.setValue(fileList![0]);
+    this.fileControl?.setValue(fileList![0]);
 
     this.validFile = true;
+
+  }
+
+  closeErrorHandler(): void {
+    this.validFile = true;
+    this.fileControl?.setValue(null);
+  }
+
+  onSuccessMessageClose(): void {
+    this.validFile = true;
+    this.tempFile = null;
+    this.fileControl?.setValue(null);
+    this.isSuccessConverted = false;
   }
 
   private buildForm(): void {
@@ -103,8 +121,22 @@ export class MainFormComponent implements OnInit, OnDestroy {
     this.backendService.convertFile(req)
       .pipe(takeUntil(this.uns$))
       .subscribe((res) => {
-        console.log(res);
+
+        console.log('DATA: ', res);
+        this.downloadConvertedFile(res.data);
+
+        this.isSuccessConverted = true;
       });
+  }
+
+  private downloadConvertedFile(fileDate: any): void {
+    const url = window.URL.createObjectURL(new Blob([ fileDate ]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', this.file.name);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
   }
 
   private isCorrectFileExt(file: File): boolean {
@@ -115,5 +147,4 @@ export class MainFormComponent implements OnInit, OnDestroy {
   private isCorrectFileSize(file: File): boolean {
     return (file.size / MB) < 10;
   }
-
 }

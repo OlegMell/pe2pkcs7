@@ -1,10 +1,9 @@
 <app-header [title]="title"></app-header>
 
 <main class="content">
-<!--  <app-loader *ngIf="isLoading"></app-loader>-->
-<!--  <app-main-form *ngIf="!isLoading"-->
-<!--                 (isLoading)="onLoading($event)"></app-main-form>-->
-  <app-error-alert></app-error-alert>
+  <app-loader *ngIf="isLoading"></app-loader>
+  <app-main-form *ngIf="!isLoading"
+                 (isLoading)="onLoading($event)"></app-main-form>
 </main>
 
 <app-footer></app-footer>
