@@ -1,0 +1,7 @@
+<button class="button"
+        [class.primary]="type === buttonType.PRIMARY"
+        [class.alert]="type === buttonType.ALERT"
+        [disabled]="disabled"
+        (click)="onClick.emit()">
+  {{label}}
+</button>

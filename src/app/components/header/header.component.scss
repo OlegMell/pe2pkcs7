@@ -8,6 +8,8 @@
   align-items: center;
   justify-content: center;
   border-bottom: $border;
+  padding: 12px 0;
+  box-sizing: border-box;
 
   &__title-box {
     width: 200px;

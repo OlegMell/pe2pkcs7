@@ -10,6 +10,11 @@ import { FooterComponent } from './components/footer/footer.component';
 import { LoaderComponent } from './components/loader/loader.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
+import { FormTopTextComponent } from './components/main-form/form-top-text/form-top-text.component';
+import { RadioButtonComponent } from './components/main-form/radio-button/radio-button.component';
+import { DndDirective } from './directives/dnd.directive';
+import { ErrorAlertComponent } from './components/error-alert/error-alert.component';
+import { ButtonComponent } from './components/button/button.component';
 
 @NgModule({
   declarations: [
@@ -18,6 +23,11 @@ import { HttpClientModule } from '@angular/common/http';
     MainFormComponent,
     FooterComponent,
     LoaderComponent,
+    FormTopTextComponent,
+    RadioButtonComponent,
+    DndDirective,
+    ErrorAlertComponent,
+    ButtonComponent
   ],
   imports: [
     CommonModule,

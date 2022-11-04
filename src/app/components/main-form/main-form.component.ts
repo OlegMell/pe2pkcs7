@@ -1,5 +1,5 @@
 import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 
 import { BackendService } from '../../services/backend.service';
 import { retry, Subject, takeUntil } from 'rxjs';
@@ -21,10 +21,10 @@ export class MainFormComponent implements OnInit, OnDestroy {
   @Output() isLoading: EventEmitter<boolean> = new EventEmitter<boolean>();
 
   dragAreaClass!: string;
-
   form!: FormGroup;
-
   validFile!: boolean;
+
+  exportFileTypes: typeof ConvertFileType = ConvertFileType;
 
   get file(): File {
     return this.form.get('file')?.value;
@@ -32,6 +32,10 @@ export class MainFormComponent implements OnInit, OnDestroy {
 
   get exportFileType(): string {
     return this.form.get('exportFileType')?.value;
+  }
+
+  get exportFileTypeControl(): FormControl {
+    return this.form.get('exportFileType')! as FormControl;
   }
 
   constructor(
@@ -49,17 +53,17 @@ export class MainFormComponent implements OnInit, OnDestroy {
     this.uns$.complete();
   }
 
+  /**
+   * on file drop handler
+   */
+  onFileDropped(files: any) {
+    this.prepareFile(files);
+  }
+
   onFileSelected(event: Event): void {
     const element = event.currentTarget as HTMLInputElement;
     const fileList: FileList | null = element.files;
-
-    if (!this.isCorrectFileSize(fileList![0]) || this.isCorrectFileExt(fileList![0])) {
-      return;
-    }
-
-    this.form.get('file')?.setValue(fileList![0]);
-
-    this.validFile = true;
+    this.prepareFile(fileList);
   }
 
   convertFile(): void {
@@ -76,6 +80,16 @@ export class MainFormComponent implements OnInit, OnDestroy {
     console.log(req);
 
     this.sendRequest(req);
+  }
+
+  prepareFile(fileList: FileList | null): void {
+    if (!this.isCorrectFileSize(fileList![0]) || this.isCorrectFileExt(fileList![0])) {
+      return;
+    }
+
+    this.form.get('file')?.setValue(fileList![0]);
+
+    this.validFile = true;
   }
 
   private buildForm(): void {
@@ -101,4 +115,5 @@ export class MainFormComponent implements OnInit, OnDestroy {
   private isCorrectFileSize(file: File): boolean {
     return (file.size / MB) < 10;
   }
+
 }

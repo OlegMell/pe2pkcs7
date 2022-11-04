@@ -1,0 +1,20 @@
+.main-form__form-box__form__file-type-box__radio-box__radio {
+  display: flex;
+  margin: 10px 10px;
+  align-items: center;
+  cursor: pointer;
+
+  &:first-child {
+    margin-left: 0;
+  }
+
+  input[type="radio"] {
+    margin: 0 5px 0 0;
+    height: 20px;
+    width: 20px;
+  }
+
+  span {
+    font-weight: 400;
+  }
+}

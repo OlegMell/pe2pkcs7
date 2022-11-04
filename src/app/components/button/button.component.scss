@@ -1,0 +1,35 @@
+@import "colors";
+
+.button {
+  background-color: $accentBlue;
+  border: 0;
+  color: $white;
+  font-weight: 700;
+  font-size: 18px;
+  border-radius: 8px;
+  width: 368px;
+  height: 56px;
+  cursor: pointer;
+}
+
+.button:disabled,
+.button [disabled] {
+  background-color: $accentDisabled;
+}
+
+.alert {
+  background-color: $alertRed;
+
+  &:hover:not([disabled]) {
+    background-color: $alertRed;
+  }
+}
+
+.primary {
+  background-color: $accentBlue;
+
+  &:hover:not([disabled]) {
+    cursor: pointer;
+    background-color: $accentHover;
+  }
+}

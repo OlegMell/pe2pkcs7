@@ -1,19 +1,18 @@
 <div class="main-form">
-  <div class="main-form__text-box">
-    <p class="main-form__text-box_part">Tool to pull <span class="main-form__text-box__color">pkcs7</span> from file.
-    </p>
-    <p class="main-form__text-box_part">Select a file to get started</p>
-  </div>
+
+  <app-form-top-text></app-form-top-text>
 
   <div class="main-form__form-box">
 
     <form [formGroup]="form"
           class="main-form__form-box__form">
 
-      <div class="main-form__form-box__form__input-box" draggable="true" ngClass="{{dragAreaClass}}">
-
+      <div class="main-form__form-box__form__input-box"
+           appDnd
+           (fileDropped)="onFileDropped($event)">
 
         <label class="main-form__form-box__form__input-box__custom-inp">
+
           <input type="file"
                  (change)="onFileSelected($event)"
                  [multiple]="false">
@@ -41,29 +40,37 @@
       </div>
 
       <div class="main-form__form-box__form__file-type-box">
+
         <div class="main-form__form-box__form__file-type-box__text">
           Choose type to convert:
         </div>
+
         <div class="main-form__form-box__form__file-type-box__radio-box">
-          <label class="main-form__form-box__form__file-type-box__radio-box__radio">
-            <input type="radio" formControlName="exportFileType" value="der">
-            <span class="checkmark"></span>
-            <span>DER</span>
-          </label>
-          <label class="main-form__form-box__form__file-type-box__radio-box__radio">
-            <input type="radio" formControlName="exportFileType" value="binary">
-            <span class="checkmark"></span>
-            Binary
-          </label>
+
+          <app-radio-button label="DER"
+                            [control]="exportFileTypeControl"
+                            [exportFileTypes]="exportFileTypes.DER"></app-radio-button>
+          <app-radio-button label="Binary"
+                            [control]="exportFileTypeControl"
+                            [exportFileTypes]="exportFileTypes.BINARY"></app-radio-button>
+
         </div>
       </div>
 
       <div class="main-form__form-box__form__button-box">
-        <button class="main-form__form-box__form__button-box__btn"
-                [disabled]="form.invalid"
-                (click)="convertFile()">
-          Convert
-        </button>
+
+<!--        <button class="main-form__form-box__form__button-box__btn"-->
+<!--                [disabled]="form.invalid"-->
+<!--                (click)="convertFile()">-->
+<!--          Convert-->
+<!--        </button>-->
+
+        <app-button
+          label="Convert"
+          [disabled]="form.invalid"
+          (onClick)="convertFile()"
+        ></app-button>
+
       </div>
 
     </form>

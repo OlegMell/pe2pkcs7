@@ -1,0 +1,21 @@
+<div class="error-alert">
+
+  <div class="error-alert__icon">
+    <img src="assets/icons/error-ccon.svg"
+         alt="error icon">
+    <span>{{alertLabel}}</span>
+  </div>
+
+  <div class="error-alert__main-text">
+    The file '{{fileName}}' is too large for the operation file system.
+  </div>
+
+  <div class="error-alert__button-wrapper">
+    <app-button
+      label="OK"
+      [type]="buttonType.ALERT"
+      (onClick)="closeAlert()"
+    ></app-button>
+  </div>
+
+</div>
