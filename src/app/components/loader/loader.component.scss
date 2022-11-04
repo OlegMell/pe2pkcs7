@@ -1,0 +1,27 @@
+.loader {
+  margin: auto;
+  width: min-content;
+
+  &__text {
+    font-size: 18px;
+    font-weight: 500;
+    margin-bottom: 30px;
+  }
+
+  &__wrapper {
+    &__icon {
+      animation: spin infinite linear 2s;
+    }
+  }
+}
+
+
+@keyframes spin {
+  from {
+    transform: rotate(0);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}

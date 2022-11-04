@@ -1,0 +1,167 @@
+@import "colors";
+@import "vars";
+
+.main-form {
+  margin: auto;
+  width: 491px;
+  height: 372px;
+  //background-color: rgba(aquamarine, .4);
+
+  &__text-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 18px;
+    font-weight: 500;
+
+    &_part {
+      margin: 5px 0;
+    }
+
+    &__color {
+      color: $accentBlue;
+    }
+  }
+
+  &__form-box {
+    width: 400px;
+    height: 284px;
+    border: $border;
+    padding: 16px;
+    border-radius: 5px;
+    margin: 32px auto auto;
+    box-sizing: border-box;
+
+    &__form {
+
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+
+      &__input-box {
+
+        border: $border;
+        border-radius: 5px;
+        width: 100%;
+        box-sizing: border-box;
+        padding: 16px;
+
+        &__custom-inp {
+          color: $textSecondary;
+          font-size: 16px;
+          display: flex;
+          font-weight: 400;
+          background-color: $grayField;
+          padding: 12px;
+          border-radius: 5px;
+          width: 100%;
+          height: 56px;
+          cursor: pointer;
+          align-items: center;
+          box-sizing: border-box;
+
+          &__placeholder-text {
+            padding-left: 10px;
+            width: 230px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+        }
+
+        input[type="file"] {
+          display: none;
+        }
+
+
+      }
+
+      &__file-type-box {
+        display: flex;
+        flex-direction: column;
+        text-align: left;
+        width: 100%;
+        margin-top: 20px;
+        //align-items: flex-start;
+        //justify-content: center;
+
+        &__text {
+          font-weight: 500;
+          font-size: 16px;
+        }
+
+        &__radio-box {
+          display: flex;
+          padding-top: 10px;
+          box-sizing: border-box;
+
+          &__radio {
+            display: flex;
+            margin: 10px 10px;
+            align-items: center;
+            cursor: pointer;
+
+            &:first-child {
+              margin-left: 0;
+            }
+
+            input[type="radio"] {
+              margin: 0 5px 0 0;
+              height: 20px;
+              width: 20px;
+            }
+
+            span {
+              font-weight: 400;
+            }
+          }
+        }
+      }
+
+      &__button-box {
+        margin-top: 20px;
+
+        &__btn {
+          background-color: $accentBlue;
+          border: 0;
+          color: $white;
+          font-weight: 700;
+          font-size: 18px;
+          border-radius: 8px;
+          width: 368px;
+          height: 56px;
+
+          &:hover:not([disabled]) {
+            cursor: pointer;
+            background-color: $accentHover;
+          }
+        }
+
+        &__btn:disabled,
+        &__btn[disabled]{
+          //border: 1px solid #999999;
+          background-color: $accentDisabled;
+          //color: #666666;
+        }
+      }
+    }
+
+  }
+}
+
+.placeholder-wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+.valid-file {
+  font-size: 14px;
+  font-weight: 600;
+  color: $accentBlue;
+}
+
+.file-size {
+  font-size: 12px;
+  font-weight: 400;
+}

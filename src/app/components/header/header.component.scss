@@ -1,0 +1,31 @@
+@import "colors";
+@import "vars";
+
+.header {
+
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: $border;
+
+  &__title-box {
+    width: 200px;
+    display: flex;
+    text-align: center;
+    justify-content: center;
+
+    &__logo-wrapper {
+
+    }
+
+    &__title {
+      font-size: 16px;
+      font-weight: 700;
+      padding-left: 5px;
+      text-align: center;
+      display: flex;
+      align-items: baseline;
+    }
+  }
+}

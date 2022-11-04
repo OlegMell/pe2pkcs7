@@ -1,0 +1,73 @@
+<div class="main-form">
+  <div class="main-form__text-box">
+    <p class="main-form__text-box_part">Tool to pull <span class="main-form__text-box__color">pkcs7</span> from file.
+    </p>
+    <p class="main-form__text-box_part">Select a file to get started</p>
+  </div>
+
+  <div class="main-form__form-box">
+
+    <form [formGroup]="form"
+          class="main-form__form-box__form">
+
+      <div class="main-form__form-box__form__input-box" draggable="true" ngClass="{{dragAreaClass}}">
+
+
+        <label class="main-form__form-box__form__input-box__custom-inp">
+          <input type="file"
+                 (change)="onFileSelected($event)"
+                 [multiple]="false">
+
+          <ng-template [ngIf]="!validFile">
+            <img src="assets/icons/State=Default.svg"
+                 alt="input icon state default">
+            <span class="main-form__form-box__form__input-box__custom-inp__placeholder-text">Choose a file</span>
+          </ng-template>
+
+          <ng-template [ngIf]="validFile">
+            <img src="assets/icons/State=Downloaded.svg"
+                 alt="input icon state default">
+            <div class="placeholder-wrapper">
+              <span class="main-form__form-box__form__input-box__custom-inp__placeholder-text"
+                    [title]="file?.name"
+                    [class.valid-file]="validFile">{{ file?.name }}</span>
+              <span class="main-form__form-box__form__input-box__custom-inp__placeholder-text file-size">
+                  {{ file?.size }} MB</span>
+            </div>
+          </ng-template>
+
+        </label>
+
+      </div>
+
+      <div class="main-form__form-box__form__file-type-box">
+        <div class="main-form__form-box__form__file-type-box__text">
+          Choose type to convert:
+        </div>
+        <div class="main-form__form-box__form__file-type-box__radio-box">
+          <label class="main-form__form-box__form__file-type-box__radio-box__radio">
+            <input type="radio" formControlName="exportFileType" value="der">
+            <span class="checkmark"></span>
+            <span>DER</span>
+          </label>
+          <label class="main-form__form-box__form__file-type-box__radio-box__radio">
+            <input type="radio" formControlName="exportFileType" value="binary">
+            <span class="checkmark"></span>
+            Binary
+          </label>
+        </div>
+      </div>
+
+      <div class="main-form__form-box__form__button-box">
+        <button class="main-form__form-box__form__button-box__btn"
+                [disabled]="form.invalid"
+                (click)="convertFile()">
+          Convert
+        </button>
+      </div>
+
+    </form>
+
+  </div>
+
+</div>
