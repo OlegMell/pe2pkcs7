@@ -1,12 +1,19 @@
-import { Subject, takeUntil } from 'rxjs';
+import { Subject } from 'rxjs';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { signatureGet } from 'portable-executable-signature';
+import { Buffer } from 'buffer';
+// @ts-ignore
+import ASN1 from '@lapo/asn1js';
+// @ts-ignore
+import Hex from '@lapo/asn1js/hex';
 
 import { ConvertFile } from '../../models/backend.models';
 import { BackendService } from '../../services/backend.service';
 import { ConvertFileType } from '../../enums/convert-file-type.enum';
 
-const MB = 1000_000;
+
+const MB = 2000_000;
 const VALID_FILE_EXTENSIONS = [ 'exe' ];
 
 @Component({
@@ -17,8 +24,6 @@ const VALID_FILE_EXTENSIONS = [ 'exe' ];
 export class MainFormComponent implements OnInit, OnDestroy {
 
   private readonly uns$: Subject<void> = new Subject<void>();
-
-  // @Output() isLoading: EventEmitter<boolean> = new EventEmitter<boolean>();
 
   form!: FormGroup;
   validFile: boolean = true;
@@ -45,7 +50,6 @@ export class MainFormComponent implements OnInit, OnDestroy {
 
   constructor(
     private readonly formBuilder: FormBuilder,
-    private readonly backendService: BackendService,
   ) {
   }
 
@@ -69,7 +73,6 @@ export class MainFormComponent implements OnInit, OnDestroy {
   }
 
   convertFile(): void {
-    // this.isLoading.emit(true);
 
     this.isFetching = true;
 
@@ -80,8 +83,6 @@ export class MainFormComponent implements OnInit, OnDestroy {
 
     req.file = formData;
     req.exportFileType = this.exportFileType as ConvertFileType;
-
-    console.log(req);
 
     this.sendRequest(req);
   }
@@ -120,29 +121,107 @@ export class MainFormComponent implements OnInit, OnDestroy {
     });
   }
 
-  private sendRequest(req: ConvertFile): void {
-    this.backendService.convertFile(req)
-      .pipe(takeUntil(this.uns$))
-      .subscribe((res) => {
+  private sendRequest(req?: ConvertFile): void {
 
-        console.log('DATA: ', res);
-        // this.downloadConvertedFile(res.data);
+    const fr = new FileReader();
 
-        this.isFetching = false;
-        this.isSuccessConverted = true;
-        this.tempFile = null;
-        this.fileControl.setValue(null);
-      });
+    fr.readAsArrayBuffer(this.file);
+
+    fr.onloadend = () => {
+
+      const signature = signatureGet(fr.result as ArrayBuffer);
+
+      const signatureBuffer = Buffer.from(signature as ArrayBuffer, 8);
+
+      switch (this.exportFileType) {
+        case ConvertFileType.DER:
+          let decoded = ASN1.decode(signatureBuffer, 0);
+          let res = this.print(decoded, null, '');
+          this.downloadConvertedFile(res, 'txt');
+          break;
+
+        case ConvertFileType.BINARY:
+          this.downloadConvertedFile(signatureBuffer, 'p7b');
+          break;
+      }
+    }
+
+
+    this.isFetching = false;
+    this.isSuccessConverted = true;
+    this.tempFile = null;
+    // this.fileControl.setValue(null);
   }
 
-  private downloadConvertedFile(fileDate: any): void {
+  private downloadConvertedFile(fileDate: any, fileExt: 'txt' | 'p7b'): void {
     const url = window.URL.createObjectURL(new Blob([ fileDate ]));
     const link = document.createElement('a');
     link.href = url;
-    link.setAttribute('download', this.file.name);
+    link.setAttribute('download', `test.${ fileExt }`);
     document.body.appendChild(link);
     link.click();
     link.remove();
+  }
+
+  translate(def: any) {
+    if (def?.type?.type)
+      def = def.type;
+    while (def?.type == 'defined') {
+      const name = def.name;
+    }
+    return def ?? {};
+  }
+
+  print(value: any, def: any, indent: any) {
+
+    if (indent === undefined) indent = '';
+
+    let deftype = this.translate(def);
+    let tn = value.typeName();
+
+    if (deftype.name == 'CHOICE') {
+      for (let c of deftype.content) {
+        c = this.translate(c);
+        if (tn == c.name) {
+          deftype = this.translate(c);
+          break;
+        }
+      }
+    }
+    if (tn.replaceAll('', ' ') != deftype.name && deftype.name != 'ANY')
+      def = null;
+    let name = '';
+    if (def) {
+
+      if (def.type == 'defined') name = (name ? name + ' ' : '') + def.name;
+      if (name) name += ' ';
+    }
+    let s = indent + name + value.typeName();
+
+    let content = value.content();
+    if (content)
+      s += ": " + content.replace(/\n/g, '|');
+    s += "\n";
+    if (value.sub !== null) {
+      indent += '  ';
+      let j = deftype?.content ? 0 : -1;
+      for (let i = 0, max = value.sub.length; i < max; ++i) {
+        const subval = value.sub[i];
+        let type;
+        if (j >= 0) {
+          if (deftype?.typeOf)
+            type = deftype.content[0];
+          else {
+            let tn = subval.typeName().replaceAll('', ' ');
+            do {
+              type = deftype.content[j++];
+            } while (('optional' in type || 'default' in type) && type.name != tn);
+          }
+        }
+        s += this.print(subval, type, indent);
+      }
+    }
+    return s;
   }
 
   private isCorrectFileExt(file: File): boolean {
