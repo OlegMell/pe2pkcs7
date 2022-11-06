@@ -1,6 +1,5 @@
-import { of, Subject } from 'rxjs';
+import { Subject } from 'rxjs';
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { signatureGet } from 'portable-executable-signature';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { Buffer } from 'buffer';
 // @ts-ignore
