@@ -1,12 +1,14 @@
-<app-splash [isActiveSplash]="isShowSplash"></app-splash>
+<app-header [title]="title"></app-header>
 
-<ng-template [ngIf]="!isShowSplash">
-  <app-header [title]="title"></app-header>
+<main class="content">
 
-  <main class="content">
-    <app-main-form></app-main-form>
-  </main>
+  <div *ngIf="error">
+    <app-error-alert (onClose)="onErrorAlertClose()"
+                     [error]="error"></app-error-alert>
+  </div>
 
-  <app-footer></app-footer>
+  <app-main-form [isValidFile$]="isValidFile$" [errorText$]="errorText$"></app-main-form>
 
-</ng-template>
+</main>
+
+<app-footer></app-footer>

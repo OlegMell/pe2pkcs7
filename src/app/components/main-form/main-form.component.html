@@ -1,7 +1,7 @@
-<app-error-alert *ngIf="!validFile"
-                 [fileName]="tempFile!.name"
-                 (onClose)="closeErrorHandler()">
-</app-error-alert>
+<!--<app-error-alert [errorText$]="errorText$"-->
+<!--                 [isActive]="!validFile"-->
+<!--                 (onClose)="closeErrorHandler()">-->
+<!--</app-error-alert>-->
 
 <app-loader *ngIf="isFetching"></app-loader>
 
@@ -55,7 +55,7 @@
                     [title]="file?.name"
                     [class.valid-file]="validFile">{{ file?.name }}</span>
               <span class="main-form__form-box__form__input-box__custom-inp__placeholder-text file-size">
-                  {{ file?.size }} MB</span>
+                  {{ fileSizeMB }} MB</span>
             </div>
           </ng-template>
 

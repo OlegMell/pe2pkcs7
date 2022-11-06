@@ -1,7 +1,7 @@
-import { Subject } from 'rxjs';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { of, Subject } from 'rxjs';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { signatureGet } from 'portable-executable-signature';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { Buffer } from 'buffer';
 // @ts-ignore
 import ASN1 from '@lapo/asn1js';
@@ -9,11 +9,12 @@ import ASN1 from '@lapo/asn1js';
 import Hex from '@lapo/asn1js/hex';
 
 import { ConvertFile } from '../../models/backend.models';
-import { BackendService } from '../../services/backend.service';
 import { ConvertFileType } from '../../enums/convert-file-type.enum';
+import { DigitalSignature } from '../utils/digital-signature.service';
+import { UtilsService } from '../utils/utils.service';
 
 
-const MB = 2000_000;
+const MB = 1000_000_000;
 const VALID_FILE_EXTENSIONS = [ 'exe' ];
 
 @Component({
@@ -32,6 +33,10 @@ export class MainFormComponent implements OnInit, OnDestroy {
   isSuccessConverted: boolean = false;
   isFetching: boolean = false;
 
+  @Input() errorText$!: Subject<string>;
+  @Input() isValidFile$!: Subject<boolean>;
+
+
   get file(): File {
     return this.form.get('file')?.value;
   }
@@ -48,13 +53,24 @@ export class MainFormComponent implements OnInit, OnDestroy {
     return this.form.get('exportFileType')! as FormControl;
   }
 
+  get fileSizeMB(): string {
+    return ((this.file?.size / 1024) / 1024).toFixed(1);
+  }
+
   constructor(
     private readonly formBuilder: FormBuilder,
+    private readonly digitalSignature: DigitalSignature,
+    private readonly utilsService: UtilsService
   ) {
   }
 
   ngOnInit(): void {
     this.buildForm();
+    this.isValidFile$
+      .subscribe(v=> {
+        console.log(v);
+        this.validFile = v;
+      })
   }
 
   ngOnDestroy(): void {
@@ -93,6 +109,7 @@ export class MainFormComponent implements OnInit, OnDestroy {
 
     if (!this.isCorrectFileSize(this.tempFile) || !this.isCorrectFileExt(this.tempFile)) {
       this.validFile = false;
+      this.errorText$.next(`The file ${ this.tempFile.name } is too large or have wrong extension!`)
       return;
     }
 
@@ -125,32 +142,65 @@ export class MainFormComponent implements OnInit, OnDestroy {
 
     const fr = new FileReader();
 
-    fr.readAsArrayBuffer(this.file);
+    this.isFetching = true;
+
+    let chunk;
+
+    if (this.file.size > 8096) {
+      chunk = this.file.slice(0, 8096);
+    }
+
+    fr.readAsArrayBuffer(chunk || this.file);
 
     fr.onloadend = () => {
 
-      const signature = signatureGet(fr.result as ArrayBuffer);
+      try {
+        const { offset, size } = this.digitalSignature.getInfo(fr.result as ArrayBuffer);
 
-      const signatureBuffer = Buffer.from(signature as ArrayBuffer, 8);
+        const c = this.file.slice(offset);
 
-      switch (this.exportFileType) {
-        case ConvertFileType.DER:
-          let decoded = ASN1.decode(signatureBuffer, 0);
-          let res = this.print(decoded, null, '');
-          this.downloadConvertedFile(res, 'txt');
-          break;
+        if (this.file.size > 8096) {
 
-        case ConvertFileType.BINARY:
-          this.downloadConvertedFile(signatureBuffer, 'p7b');
-          break;
+          fr.readAsArrayBuffer(c);
+          fr.onloadend = () => {
+            this.createFile(fr);
+          }
+
+        } else {
+          this.createFile(fr);
+        }
+      } catch (e: any) {
+
+        this.validFile = false;
+        this.isFetching = false;
+        this.isSuccessConverted = false;
+        this.tempFile = null;
+        this.fileControl.setValue(null);
+
+        this.errorText$.next(`Parsing Error: ${e.message}`);
       }
     }
 
+  }
+
+  private createFile(fr: FileReader) {
+    const signatureBuffer = Buffer.from(fr.result as ArrayBuffer);
+
+    switch (this.exportFileType) {
+      case ConvertFileType.DER:
+        let decoded = ASN1.decode(signatureBuffer, 0);
+        let res = this.utilsService.createFormattedStringFromASN1(decoded, null, '');
+        this.downloadConvertedFile(res, 'txt');
+        break;
+
+      case ConvertFileType.BINARY:
+        this.downloadConvertedFile(signatureBuffer, 'p7b');
+        break;
+    }
 
     this.isFetching = false;
     this.isSuccessConverted = true;
     this.tempFile = null;
-    // this.fileControl.setValue(null);
   }
 
   private downloadConvertedFile(fileDate: any, fileExt: 'txt' | 'p7b'): void {
@@ -161,67 +211,6 @@ export class MainFormComponent implements OnInit, OnDestroy {
     document.body.appendChild(link);
     link.click();
     link.remove();
-  }
-
-  translate(def: any) {
-    if (def?.type?.type)
-      def = def.type;
-    while (def?.type == 'defined') {
-      const name = def.name;
-    }
-    return def ?? {};
-  }
-
-  print(value: any, def: any, indent: any) {
-
-    if (indent === undefined) indent = '';
-
-    let deftype = this.translate(def);
-    let tn = value.typeName();
-
-    if (deftype.name == 'CHOICE') {
-      for (let c of deftype.content) {
-        c = this.translate(c);
-        if (tn == c.name) {
-          deftype = this.translate(c);
-          break;
-        }
-      }
-    }
-    if (tn.replaceAll('', ' ') != deftype.name && deftype.name != 'ANY')
-      def = null;
-    let name = '';
-    if (def) {
-
-      if (def.type == 'defined') name = (name ? name + ' ' : '') + def.name;
-      if (name) name += ' ';
-    }
-    let s = indent + name + value.typeName();
-
-    let content = value.content();
-    if (content)
-      s += ": " + content.replace(/\n/g, '|');
-    s += "\n";
-    if (value.sub !== null) {
-      indent += '  ';
-      let j = deftype?.content ? 0 : -1;
-      for (let i = 0, max = value.sub.length; i < max; ++i) {
-        const subval = value.sub[i];
-        let type;
-        if (j >= 0) {
-          if (deftype?.typeOf)
-            type = deftype.content[0];
-          else {
-            let tn = subval.typeName().replaceAll('', ' ');
-            do {
-              type = deftype.content[j++];
-            } while (('optional' in type || 'default' in type) && type.name != tn);
-          }
-        }
-        s += this.print(subval, type, indent);
-      }
-    }
-    return s;
   }
 
   private isCorrectFileExt(file: File): boolean {
